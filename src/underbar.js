@@ -203,7 +203,6 @@
       });
     } else {
       return _.reduce(collection,function(memo,x){
-        console.log(iterator(x)==true);
         if (typeof x == typeof {}){
           return (memo && (iterator(true) == true));
         } else if (x === undefined){
@@ -219,6 +218,11 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    var test = iterator === undefined ? _.identity : iterator;
+    return _.reduce(collection,function(memo,x){
+      var val = x==="yes" ? true : x === undefined ? false : x===null ? false : typeof x == typeof {} ? true : x;
+      return memo || (test(val) == true);
+    },false) == true;
   };
 
 
