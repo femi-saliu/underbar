@@ -379,6 +379,17 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    if (typeof iterator === 'string'){
+      return collection.sort(function(a,b){
+        return a[iterator] > b[iterator];
+      });
+    } else {
+      return collection.sort(function(a,b){
+        return iterator(a) > iterator(b);
+      });
+    }
+
+
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -387,6 +398,24 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var result = []; // how big
+    var resultSize = arguments[0].length;
+    // loop through args and save value of largest array
+    for (var i=1; i<arguments.length; i++){
+      if (resultSize < arguments[i].length) {
+          resultSize = arguments[i].length;
+      }
+    }
+    //for loop
+    for (var i=0; i<resultSize; i++){
+      var subResult = [];
+      for (var j=0; j<arguments.length; j++){
+        subResult.push(arguments[j][i]);
+      }
+      result.push(subResult);
+    }
+
+    return result;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -394,16 +423,59 @@
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    var result = [];
+    var flattenAUX = function(nestedArray){
+      for (var i=0; i<nestedArray.length; i++) {
+        if(Array.isArray(nestedArray[i])){
+          flattenAUX(nestedArray[i]);
+        } else {
+          result.push(nestedArray[i]);
+        }
+      }
+    }
+    flattenAUX(nestedArray);
+
+    return result;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    var result = [];
+    for(var i=0; i<arguments[0].length; i++){
+      var existsSoFar=true;
+      for(var j=1; j< arguments.length; j++){
+        if (_.indexOf(arguments[j],arguments[0][i])>=0 && existsSoFar){
+        } else {
+          existsSoFar = false;
+        }
+      }
+      if (existsSoFar){
+        result.push(arguments[0][i]);
+      }
+    }
+    return result;
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+    var result = [];
+
+
+    var flattenArray=[];
+    for (var i=1; i<arguments.length;i++){
+        flattenArray.push(arguments[i]);
+    }
+    flattenArray = _.flatten(flattenArray);
+
+    for (var i=0; i<arguments[0].length; i++){
+      if (_.indexOf(flattenArray, arguments[0][i]) === -1) {
+        result.push(arguments[0][i]);
+      }
+    }
+
+    return result;
   };
 
   // Returns a function, that, when invoked, will only be triggered at most once
@@ -412,5 +484,17 @@
   //
   // Note: This is difficult! It may take a while to implement.
   _.throttle = function(func, wait) {
+    var allowedToCall = true;
+
+    var resetTimer = function(){
+      allowedToCall = true;
+    };
+    return function(){
+      if(allowedToCall){
+        allowedToCall = false;
+        setTimeout(resetTimer, wait);
+        func.apply(this,arguments);
+      }
+    };
   };
 }());
