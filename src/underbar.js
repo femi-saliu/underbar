@@ -350,7 +350,6 @@
      return result;
   };
 
-
   /**
    * EXTRA CREDIT
    * =================
@@ -363,8 +362,14 @@
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
     var result = [];
-    for (var i=0; i<collection.length; i++){
-      result.push(functionOrKey.apply(collection[i],args));
+    if(typeof functionOrKey === 'string'){
+      for (var i=0; i<collection.length; i++){
+        result.push(collection[i][functionOrKey].apply(collection[i],args));
+      }
+    } else {
+      for (var i=0; i<collection.length; i++){
+        result.push(functionOrKey.apply(collection[i],args));
+      }
     }
     return result;
   };
